@@ -1,23 +1,65 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Form from "./components/Form";
+import "./App.css";
+import ToDo from "./components/ToDo";
 
 function App() {
+  const [textItem, setTextItem] = useState("");
+  const [toDoItem, setToDoItem] = useState([]);
+  const [filter, setFilter] = useState("All");
+  const [filterdToDO, setFilterdToDO] = useState([]);
+
+  useEffect(() => {
+    getTodos();
+  }, []);
+
+  useEffect(() => {
+    const fHandler = () => {
+      switch (filter) {
+        case "completed":
+          setFilterdToDO(toDoItem.filter((todo) => todo.completed === true));
+          break;
+        case "uncompleted":
+          setFilterdToDO(toDoItem.filter((todo) => todo.completed === false));
+          break;
+        default:
+          setFilterdToDO(toDoItem);
+          break;
+      }
+    };
+    const saveToDos = () => {
+      localStorage.setItem("todos", JSON.stringify(toDoItem));
+    };
+    fHandler();
+    saveToDos();
+  }, [toDoItem, filter]);
+
+  const getTodos = () => {
+    if (localStorage.getItem("todos") === null) {
+      localStorage.setItem("todos", JSON.stringify([]));
+    } else {
+      let localToDos = JSON.parse(localStorage.getItem("todos"));
+      setToDoItem(localToDos);
+    }
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <div className="app">
+      <header className="header">
+        <h1>ToDo App</h1>
       </header>
+      <Form
+        textItem={textItem}
+        toDoItem={toDoItem}
+        setToDoItem={setToDoItem}
+        setTextItem={setTextItem}
+        setFilter={setFilter}
+      />
+      <hr className="line" />
+      <ToDo
+        setToDoItem={setToDoItem}
+        toDoItem={toDoItem}
+        filterdToDO={filterdToDO}
+      />
     </div>
   );
 }
